@@ -120,3 +120,25 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# My settings
+
+TYPES_OF_COUNT_INGREDIENTS = (
+    (1, 'грамм'),
+    (2, 'шт'),
+    (3, 'мл')
+)
+
+TYPES_OF_COUNT_SPICES = (
+    (1, 'шепотка'),
+    (2, 'чайная ложка'),
+    (3, 'столовая ложка')
+)
+
+TIME_TYPE_TO_USE = (
+    (1, 'завтрак'),
+    (2, 'обед'),
+    (3, 'ужин'),
+    (4, 'перекус')
+)
