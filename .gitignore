@@ -1,0 +1,6 @@
+env/
+.idea
+project/db.sqlite3
+project/.idea
+project/.swp
+project/db.sqlite3
