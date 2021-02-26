@@ -35,7 +35,7 @@ class IngredientItem(models.Model):
     ingredient = models.ForeignKey(Ingredient, verbose_name="Основа", on_delete=models.CASCADE)
     count_type = models.PositiveSmallIntegerField("В чем измеряется", choices=settings.TYPES_OF_COUNT_INGREDIENTS)
     count_start = models.PositiveSmallIntegerField("Начальное количество")
-    count_now = models.PositiveSmallIntegerField("Текущее количество") # Заполнить в форме добавление автоматически
+    count_now = models.PositiveSmallIntegerField("Текущее количество")  # Заполнить в форме добавление автоматически
     manufacturer = models.CharField("Производитель", max_length=256)
     shelf_life = models.DateField("Конец срока годности")
     calories = models.PositiveSmallIntegerField("Калории на 100г продукта")
@@ -103,3 +103,7 @@ class Food(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def cooking_time_format(self):
+        return '{} мин'.format(self.cooking_time)
