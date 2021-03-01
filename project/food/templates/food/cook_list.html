@@ -1,0 +1,29 @@
+{% extends '../base.html %}
+{% block title %}Просмотр блюд{% endblock title %}
+{% block page_name %}Просмотр блюд{% endblock page_name %}
+
+{% block content %}
+{% for cook in cook_list %}
+        <div>
+
+            <span><strong>{{ cook.recipe.title }}</strong></span><br>
+            <span>Калоийность на 100г: {{ cook.total_calories }}ккал</span><br>
+            <span>Общая каллорийность: {{ cook.all_calories }}ккал</span><br>
+            <span>Общий вес блюда: {{ cook.total_weight }}г</span><br>
+            <table border="1">
+                <tr>
+                    <th>Название</th>
+                    <th>Калорийность на 100г</th>
+                    <th>Сколько грамм использовалось</th>
+                </tr>
+                {% for ingredient in cook.cook_ingredients.all %}
+                    <tr>
+                        <td>{{ ingredient.ingredient_item.ingredient.title }}</td>
+                        <td>{{ ingredient.total_calories }}ккал</td>
+                        <td>{{ ingredient.count_use }}г</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endfor %}
+{% endblock content %}

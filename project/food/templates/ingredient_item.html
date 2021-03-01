@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Страница добавления ингредиента на склад{% endblock title %}
+{% block page_name %}Страница добавления ингредиента на склад{% endblock page_name %}
+
+
+{% block content %}
 <form action="{% url 'ingredient_item_add' %}" method="post">
     {% csrf_token %}
     {{ form.as_ul }}
@@ -18,5 +17,4 @@
         count_now.value = count_start.value
     });
 </script>
-</body>
-</html>
+{% endblock content %}

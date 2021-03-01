@@ -1,0 +1,70 @@
+{% extends '../base.html %}
+{% block title %}Просмотр рецептов{% endblock title %}
+{% block page_name %}Просмотр рецептов{% endblock page_name %}
+
+
+{% block content %}
+{% for recipe in recipe_list %}
+        <div>
+
+            <span><strong>{{ recipe.title }}</strong></span><br>
+            <span>Калоийность на 100г: {{ recipe.total_calories }}ккал</span><br>
+            <span>Общая каллорийность: {{ recipe.all_calories }}ккал</span><br>
+            <span>Общий вес блюда: {{ recipe.total_weight }}г</span><br>
+            <table border="1">
+                <tr>
+                    <th colspan="3">Ингредиенты</th>
+                </tr>
+                <tr>
+                    <th>Название</th>
+                    <th>Калорийность на 100г</th>
+                    <th>Сколько грамм использовалось</th>
+                </tr>
+                {% for ingredient in recipe.recipe_ingredients.all %}
+                    <tr>
+                        <td>{{ ingredient.ingredient.title }}</td>
+                        <td>{{ ingredient.total_calories }}ккал</td>
+                        <td>{{ ingredient.count_use }}г</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <br>
+            <table border="1">
+                <tr>
+                    <th colspan="3">Этапы готовки</th>
+                </tr>
+                <tr>
+                    <th>Название</th>
+                    <th>Текст</th>
+                    <th>Сколько минут</th>
+                </tr>
+                {% for stage in recipe.cook_stages.all %}
+                    <tr>
+                        <td>{{ stage.title }}</td>
+                        <td>{{ stage.content }}</td>
+                        <td>{{ stage.time }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            {% if recipe.spices.count %}
+            <br>
+            <table border="1">
+                <tr>
+                    <th colspan="2">Специи</th>
+                </tr>
+                <tr>
+                    <th>Название</th>
+                    <th>Сколько</th>
+                </tr>
+                {% for spice in recipe.spices.all %}
+                    <tr>
+                        <td>{{ spice.spice.title }}</td>
+                        <td>{{ spice.format_count_use }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+        </div>
+<hr>
+    {% endfor %}
+{% endblock content %}

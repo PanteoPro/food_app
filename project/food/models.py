@@ -2,6 +2,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.conf import settings
 
+from .service.other import _isint
 
 """
 Структура моделей приложения food
@@ -38,6 +39,18 @@ class PlaceSpice(models.Model):
                                related_name="relates_spices")
     count_use = models.FloatField("Сколько используется в блюде",
                                   validators=[MinValueValidator(0.9), MaxValueValidator(58)])
+
+    def format_count_use(self):
+        if self.count_use == 0.25:
+            return "1/4"
+        if self.count_use == 0.5:
+            return "1/2"
+        if self.count_use == 0.75:
+            return "3/4"
+
+        if _isint(self.count_use):
+            return int(self.count_use)
+        return self.count_use
 
     def __str__(self):
         return "{} {}".format(self.spice.__str__(), self.count_use)

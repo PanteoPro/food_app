@@ -117,3 +117,45 @@ def _get_info_from_calories(ingredients, weight=False, all_calories=False):
     if weight:
         return [0, 0]
     return 0
+
+
+def check_debt(ingredient_item: IngredientItem) -> dict:
+    """Проверяет есть ли долги до данному ингредиенту, и если есть за оплатить по долгам"""
+    ingredient = ingredient_item.ingredient
+    debts = Debt.objects.filter(ingredient=ingredient, is_paid_of=False)
+    count_start = count_now = ingredient_item.count_now
+
+    is_all_redeemed = True
+    messages = list()
+
+    if len(debts):
+        for debt in debts:
+            count_debt = debt.count
+            count_now -= count_debt
+            if count_now <= 0:
+                is_all_redeemed = False
+                messages.append("Ингредиент добавлен, но полностью был использован для погашения долгов")
+                if count_now < 0:
+                    debt.count = abs(count_now)
+                else:
+                    debt.count = 0
+                    debt.is_paid_of = True
+                debt.save()
+                ingredient_item.count_now = 0
+                ingredient_item.is_ended = True
+                ingredient_item.save()
+                break
+            else:
+                debt.count = 0
+                debt.is_paid_of = True
+                debt.save()
+        if is_all_redeemed:
+            messages.append("Ингредиент добавлен. Все долги погашены, осталось {} из {}".format(count_now, count_start))
+    else:
+        messages.append("Ингредиент добавлен")
+
+    if is_all_redeemed:
+        ingredient_item.count_now = count_now
+        ingredient_item.save()
+
+    return {"success": is_all_redeemed, "messages": messages}

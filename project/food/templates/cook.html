@@ -1,27 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-        <style>
-        .error{
-            color: red;
-        }
-        .info{
-            color:green;
-        }
-    </style>
-</head>
-<body>
-{% if messages %}
+{% extends 'base.html' %}
+{% block title %}Страница добавления блюда{% endblock title %}
+{% block page_name %}Страница добавления блюда{% endblock page_name %}
 
-    {% for message in messages %}
-        <div>
-            <strong{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</strong>
-        </div>
-    {% endfor %}
 
-{% endif %}
+{% block content %}
 <form action="{% url 'cook_add' %}" method="post" id="form">
     {% csrf_token %}
     {{ form.as_ul }}
@@ -161,5 +143,4 @@
         }
     });
 </script>
-</body>
-</html>
+{% endblock content %}

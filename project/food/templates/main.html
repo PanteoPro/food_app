@@ -1,14 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<a href="{% url 'ingredient_item' %}">Добавление на склад</a>
-<br>
-<a href="{% url 'recipe' %}">Добавление рецепта</a>
-<br>
-<a href="{% url 'cook' %}">Добавление приготовленного блюда</a>
-</body>
-</html>
+{% extends 'base.html' %}
+{% block title %}Главная страница{% endblock title %}
+{% block page_name %}Главная страница{% endblock page_name %}
+
+
+{% block content %}
+    <a href="{% url 'ingredient_item' %}">Постановка ингредиента на учет</a>
+    <br>
+    <a href="{% url 'recipe' %}">Создание рецепта</a>
+    <br>
+    <a href="{% url 'cook' %}">Добавление приготовленного блюда</a>
+    <hr>
+    <br>
+    <a href="{% url 'recipe_list' %}">Просмотр всех рецептов</a>
+    <br>
+    <a href="{% url 'cook_list' %}">Просмотр всех приготовленных блюд</a>
+{% endblock content %}

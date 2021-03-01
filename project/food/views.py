@@ -1,9 +1,10 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views import View
+from django.views.generic import ListView
 
 from .forms import IngredientItemForm, RecipeForm, CookForm
-from .models import Recipe, Ingredient, Spice
+from .models import Recipe, Ingredient, Spice, Cook
 from .service.models import create_recipe, create_cook, create_ingredient_item
 from .service.views import set_model_in_context
 
@@ -51,8 +52,15 @@ class IngredientItemAddView(View):
 
         form = IngredientItemForm(request.POST)
         if form.is_valid():
-            create_ingredient_item(form)
+            result = create_ingredient_item(form)
+            for message in result["messages"]:
+                messages.add_message(request, messages.INFO, "{}".format(message))
         return redirect('/ingredient_item')
+
+
+class RecipeListView(ListView):
+
+    model = Recipe
 
 
 class RecipeView(View):
@@ -71,11 +79,17 @@ class RecipeAddView(View):
     def post(self, request, *args, **kwargs):
         result = create_recipe(request.POST)
         if result['success']:
-            messages.add_message(request, messages.INFO, "Рецепт {} успешно добавлен".format(result['message']))
+            messages.add_message(request, messages.INFO, "Рецепт {} успешно добавлен".format(result['messages'][0]))
         else:
-            messages.add_message(request, messages.ERROR, "{}".format(result['message']))
+            for message in result["messages"]:
+                messages.add_message(request, messages.ERROR, "{}".format(message))
 
         return redirect('/recipe')
+
+
+class CookListView(ListView):
+
+    model = Cook
 
 
 class CookView(View):
@@ -93,7 +107,8 @@ class CookAddView(View):
     def post(self, request, *args, **kwargs):
         result = create_cook(request.POST)
         if result['success']:
-            messages.add_message(request, messages.INFO, "Блюдо {} успешно добавлено".format(result['message']))
+            messages.add_message(request, messages.INFO, "Блюдо {} успешно добавлено".format(result['messages'][0]))
         else:
-            messages.add_message(request, messages.ERROR, "{}".format(result['message']))
+            for message in result["messages"]:
+                messages.add_message(request, messages.ERROR, "{}".format(message))
         return redirect("/cook")

@@ -1,35 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <style>
-        .adding {
-            color: green;
-            padding:0 10px;
-            cursor: pointer;
-            text-decoration: underline;
-            font-size: 20px;
-        }
-        .error{
-            color: red;
-        }
+{% extends 'base.html' %}
+{% block title %}Страница добавления рецепта{% endblock title %}
+{% block page_name %}Страница добавления рецепта{% endblock page_name %}
 
-        .info{
-            color:green;
-        }
-    </style>
-</head>
-<body>
-{% if messages %}
 
-    {% for message in messages %}
-        <div>
-            <strong{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</strong>
-        </div>
-    {% endfor %}
+{% block content %}
 
-{% endif %}
 <form action="{% url 'recipe_add' %}" method="post">
     {% csrf_token %}
     {{ form.as_ul }}
@@ -166,5 +141,4 @@
         counter_spice++
     });
 </script>
-</body>
-</html>
+{% endblock content %}

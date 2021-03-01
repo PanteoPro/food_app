@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <h2><a href="/">Food App</a></h2>
+    <hr>
+    <h3>{% block page_name %}{% endblock page_name %}</h3>
+    <hr>
+    {% if messages %}
+
+        {% for message in messages %}
+            <div>
+                <strong{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</strong>
+            </div>
+        {% endfor %}
+    <hr>
+    {% endif %}
+
+    {% block content %}
+
+    {% endblock content %}
+
+</body>
+</html>

@@ -1,45 +1,14 @@
-from .essential import subtraction_from_store, set_information_of_totals
+from typing import Union
+
+from .essential import subtraction_from_store, set_information_of_totals, check_debt
 from .post_manager import create_objects_from_post, renaming_kwargs_from_list
-from ..models import Recipe, RecipeIngredient, Cook, IngredientItem, Debt
+from ..models import Recipe, RecipeIngredient, Cook, IngredientItem, Debt, CookIngredient, Ingredient
 
 
 def create_ingredient_item(form):
     ingredient_item = form.save(commit=False)
-
-    check_debt(ingredient_item)
-
-
-def check_debt(ingredient_item: IngredientItem) -> None:
-    """Проверяет есть ли долги до данному ингредиенту, и если есть за оплатить по долгам"""
-    ingredient = ingredient_item.ingredient
-    debts = Debt.objects.filter(ingredient=ingredient, is_paid_of=False)
-    count_now = ingredient_item.count_now
-    is_all_redeemed = True
-
-    if len(debts):
-        for debt in debts:
-            count_debt = debt.count
-            count_now -= count_debt
-            if count_now <= 0:
-                is_all_redeemed = False
-                if count_now < 0:
-                    debt.count = abs(count_now)
-                else:
-                    debt.count = 0
-                    debt.is_paid_of = True
-                debt.save()
-                ingredient_item.count_now = 0
-                ingredient_item.is_ended = True
-                ingredient_item.save()
-                break
-            else:
-                debt.count = 0
-                debt.is_paid_of = True
-                debt.save()
-
-    if is_all_redeemed:
-        ingredient_item.count_now = count_now
-        ingredient_item.save()
+    result = check_debt(ingredient_item)
+    return result
 
 
 def create_recipe(data):
@@ -51,10 +20,16 @@ def create_recipe(data):
         3) Добавляем их в Recipe
             3.1) Высчитать total_calories, total_weight, all_calories в Recipe
     """
+    messages = []
+    success = True
     if not data.get("ingredient_1"):
-        return {"success": False, "message": "Нет ингредиентов"}
+        messages.append("Нет ингредиентов")
+        success = False
     if not data.get("title_stage_1"):
-        return {"success": False, "message": "Нет этапов"}
+        messages.append("Нет этапов")
+        success = False
+    if not success:
+        return {"success": success, 'messages': messages}
 
     # Разъименум данные, они с формы приходят в списках
     data = renaming_kwargs_from_list(**data)
@@ -97,7 +72,7 @@ def create_recipe(data):
 
     # Высчитываем каллорийность блюда, вес блюда, и общую каллорийность
     set_information_of_totals(recipe)
-    return {"success": True, "message": recipe.title}
+    return {"success": True, "messages": [recipe.title]}
 
 
 def create_cook(data):
@@ -115,15 +90,20 @@ def create_cook(data):
 
     # Разъименовываем данные из списков
     data = renaming_kwargs_from_list(**data)
-
-    # Создаем пустой Cook
-    cook = Cook.objects.create(recipe_id=data["recipe"])
-    recipe = cook.recipe
+    recipe = Recipe.objects.get(pk=data['recipe'])
 
     # Проверка флага is_change_count_ingredient
     if not data.get("is_change_count_ingredient"):
         # Замена в данных
         _set_in_data_like_post(recipe, data)
+
+    # Проверка на наличие ингредиентов
+    result_checking = have_ingredients_in_store(**data)
+    if not result_checking['success']:
+        return result_checking
+
+    # Создаем пустой Cook
+    cook = Cook.objects.create(recipe=recipe)
 
     # Создаем CookIngredients
     cook_ingredients = create_objects_from_post(
@@ -142,7 +122,38 @@ def create_cook(data):
     # Высчитываем для Cook total_calories, total_weight, all_calories
     set_information_of_totals(cook)
 
-    return {"success": True, "message": recipe.title}
+    return {"success": True, "messages": [recipe.title]}
+
+
+def have_ingredients_in_store(**data) -> dict:
+    success = True
+    messages = list()
+    number = 1
+    while True:
+        if not data.get("ingredient_" + str(number)):
+            break
+
+        count_use = data['ingredient_count_use_' + str(number)]
+
+        ingredient_id = data['ingredient_' + str(number)]
+        ingredient_title = Ingredient.objects.get(pk=ingredient_id)
+        ingredient_items = IngredientItem.objects.filter(ingredient_id=ingredient_id,
+                                                         is_ended=False, is_overdue=False)
+
+        if len(ingredient_items) == 0:
+            messages.append("Нет в наличии ингредиента {}".format(ingredient_title))
+            success = False
+        else:
+            sum_count_have = 0
+            for ingredient_item in ingredient_items:
+                sum_count_have += ingredient_item.count_now
+            if sum_count_have < count_use:
+                messages.append(f"Нехватает ингредиента {ingredient_title}. "
+                                f"Нужно {count_use}, на складе есть {sum_count_have}")
+                success = False
+        number += 1
+
+    return {"success": success, "messages": messages}
 
 
 def _set_in_data_like_post(recipe: Recipe, data: dict) -> list:
