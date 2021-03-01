@@ -3,4 +3,7 @@ env/
 project/db.sqlite3
 project/.idea
 project/.swp
-project/db.sqlite3
+project/food/__pycache__
+project/dishes/__pycache__
+project/config/__pycache__
+BD.vsdx

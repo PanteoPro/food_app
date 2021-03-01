@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+        <style>
+        .error{
+            color: red;
+        }
+        .info{
+            color:green;
+        }
+    </style>
+</head>
+<body>
+{% if messages %}
+
+    {% for message in messages %}
+        <div>
+            <strong{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</strong>
+        </div>
+    {% endfor %}
+
+{% endif %}
+<form action="{% url 'cook_add' %}" method="post" id="form">
+    {% csrf_token %}
+    {{ form.as_ul }}
+    <div id="ingredients"></div>
+    <button type="submit">Отправить</button>
+</form>
+
+{% for recipe_ingredient in recipe_ingredients %}
+    <div>
+        {{ recipe_ingredient.ingredient }}
+        {{ recipe_ingredient.ingredient.calories }}
+        {{ recipe_ingredient.count_use }}
+        {{ recipe_ingredient.recipe }}
+    </div>
+{% endfor %}
+<script>
+
+    function create_block(){
+        let div = document.createElement("div")
+        div.class = "ingredients"
+        return div
+    }
+
+    function get_objects(){
+        let objects = {}
+        let recipe_ingredients = {}
+
+        {% for recipe in recipes %}
+        recipe_ingredients = {}
+        {% for recipe_ingredient in recipe.recipe_ingredients.all %}
+        recipe_ingredients["recipe_ingredient_{{ recipe_ingredient.ingredient.id }}"] = [{{ recipe_ingredient.count_use }}, "{{ recipe_ingredient.ingredient.title }}"]
+        {% endfor %}
+        objects["recipe_{{ recipe.id }}"] = recipe_ingredients
+        {% endfor %}
+
+        return objects
+    }
+
+    function create_choice_input_for_ingredient(destination, text, id, counter, ingredient_id, ingredient_title){
+        let li = document.createElement("li")
+        let label = document.createElement("label")
+        let select = document.createElement("select")
+
+        id_for_place = "id_" + id + "_" + counter
+
+        label.setAttribute("for", id_for_place)
+        label.innerText = text
+
+        select.setAttribute("name", id_for_place.slice(3))
+        select.setAttribute("id", id_for_place)
+        select.required = true
+
+        let option = document.createElement("option")
+        option.innerText = ingredient_title
+        option.setAttribute("value", ingredient_id)
+        option.setAttribute("selected", "")
+        select.appendChild(option)
+
+        li.appendChild(label)
+        li.appendChild(select)
+        destination.appendChild(li)
+    }
+
+    function create_one_block_for_form(destination, text, id, counter, ingredient_count_use){
+        let li = document.createElement("li")
+        let label = document.createElement("label")
+        let input = document.createElement("input")
+
+        id_for_place = "id_" + id + "_" + counter
+
+        label.innerText = text
+        label.setAttribute("for", id_for_place)
+
+        input.setAttribute("type", "text")
+        input.setAttribute("name", id_for_place.slice(3))
+        input.required = true
+        input.setAttribute("id", id_for_place)
+        input.value = ingredient_count_use
+
+        li.appendChild(label)
+        li.appendChild(input)
+        destination.appendChild(li)
+    }
+
+    function create_new_adding_form(){
+        recipe_id = "recipe_" + recipe_choicer.value
+        if (recipe_id == "recipe_"){
+            return false
+        }
+        let block = create_block()
+        ingredients = objects[recipe_id]
+        counter = 1
+        for (key in ingredients){
+            ingredient_id = parseInt(key.slice(-1))
+            ingredient_count_use = ingredients[key][0]
+            ingredient_title = ingredients[key][1]
+            create_choice_input_for_ingredient(block, "Ингредиент", "ingredient", counter, ingredient_id, ingredient_title)
+            create_one_block_for_form(block, "Сколько используется", "ingredient_count_use", counter, ingredient_count_use)
+            counter++
+        }
+        return block
+    }
+
+
+    function change_adding_form(show_ingredients){
+        if (anchor.lastChild == block)
+            anchor.removeChild(block)
+
+        if (show_ingredients){
+            block = create_new_adding_form()
+            if (block)
+                anchor.appendChild(block)
+        }
+
+    }
+
+    const trigger = document.getElementById("id_is_change_count_ingredient")
+    const recipe_choicer = document.getElementById("id_recipe")
+    const anchor = document.getElementById("ingredients")
+    const form = document.getElementById("form")
+
+
+    let block = create_block()
+    const objects = get_objects()
+
+    trigger.addEventListener("change", function(event){
+        let show_ingredients = false
+        if (trigger.checked){
+            show_ingredients = true
+        }
+        change_adding_form(show_ingredients)
+    });
+
+    recipe_choicer.addEventListener("change", function(event){
+        if (trigger.checked){
+            change_adding_form(true)
+        }
+    });
+</script>
+</body>
+</html>

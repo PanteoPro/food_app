@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form action="{% url 'ingredient_item_add' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_ul }}
+    <button type="submit">Отправить</button>
+</form>
+<script>
+    const count_start = document.getElementById("id_count_start")
+    const count_now = document.getElementById("id_count_now")
+
+    count_start.addEventListener("change", function(event){
+        count_now.value = count_start.value
+    });
+</script>
+</body>
+</html>

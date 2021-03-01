@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .adding {
+            color: green;
+            padding:0 10px;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 20px;
+        }
+        .error{
+            color: red;
+        }
+
+        .info{
+            color:green;
+        }
+    </style>
+</head>
+<body>
+{% if messages %}
+
+    {% for message in messages %}
+        <div>
+            <strong{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</strong>
+        </div>
+    {% endfor %}
+
+{% endif %}
+<form action="{% url 'recipe_add' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_ul }}
+    <div>
+        <span class="adding" id="add_ingredient">Добавить Ингредиент</span>
+        <span class="adding" id="add_stage">Добавить Этап готовки</span>
+        <span class="adding" id="add_spice">Добавить специи</span>
+    </div>
+    <div>
+        <div style="display:inline-block" id="ingredients"></div>
+        <div style="display:inline-block" id="stages"></div>
+        <div style="display:inline-block" id="spices"></div>
+    </div>
+    <button type="submit">Отправить</button>
+</form>
+
+<script>
+    const add_ingredient = document.getElementById("add_ingredient")
+    const add_stage = document.getElementById("add_stage")
+    const add_spice = document.getElementById("add_spice")
+
+    const container_for_ingredients = document.getElementById("ingredients")
+    const container_for_stages = document.getElementById("stages")
+    const container_for_spices = document.getElementById("spices")
+
+    let counter_ingredient = 1
+    let counter_stage = 1
+    let counter_spice = 1
+
+    function create_choice_input_for_ingredient(destination, text, id, counter){
+        let li = document.createElement("li")
+        let label = document.createElement("label")
+        let select = document.createElement("select")
+
+        id_for_place = "id_" + id + "_" + counter
+
+        label.setAttribute("for", id_for_place)
+        label.innerText = text
+
+        select.setAttribute("name", id_for_place.slice(3))
+        select.setAttribute("id", id_for_place)
+        select.required = true
+
+        let option = document.createElement("option")
+        option.innerText = "---------"
+        option.setAttribute("value", "")
+        option.setAttribute("selected", "")
+        select.appendChild(option)
+
+        if (id == "ingredient"){
+
+            {% for ingredient in ingredients %}
+                option = document.createElement("option")
+                option.setAttribute("value", "{{ ingredient.id }}")
+                option.innerText = "{{ ingredient.title }}"
+                select.appendChild(option)
+            {% endfor %}
+        }else if (id == "spice"){
+            {% for spice in spices %}
+                option = document.createElement("option")
+                option.setAttribute("value", "{{ spice.id }}")
+                option.innerText = "{{ spice.title }}"
+                select.appendChild(option)
+            {% endfor %}
+        }
+
+        li.appendChild(label)
+        li.appendChild(select)
+        destination.appendChild(li)
+    }
+
+
+    function create_one_block_for_form(destination, text, id, counter){
+        let li = document.createElement("li")
+        let label = document.createElement("label")
+        let input = document.createElement("input")
+
+        id_for_place = "id_" + id + "_" + counter
+
+        label.innerText = text
+        label.setAttribute("for", id_for_place)
+
+        input.setAttribute("type", "text")
+        input.setAttribute("name", id_for_place.slice(3))
+        input.required = true
+        input.setAttribute("id", id_for_place)
+
+        li.appendChild(label)
+        li.appendChild(input)
+        destination.appendChild(li)
+    }
+
+
+    add_ingredient.addEventListener("click", function(event){
+        let block = document.createElement("div")
+        let span = document.createElement("span")
+        span.setAttribute("style", "display:block")
+        span.innerText = counter_ingredient + "-й Ингредиент"
+        block.appendChild(span)
+
+        create_choice_input_for_ingredient(block, "Ингредиент", "ingredient", counter_ingredient)
+        create_one_block_for_form(block, "Сколько нужно", "count_use_ingredient", counter_ingredient);
+
+        container_for_ingredients.appendChild(block)
+        counter_ingredient++
+    });
+
+    add_stage.addEventListener("click", function(event){
+        let block = document.createElement("div")
+        let span = document.createElement("span")
+        span.setAttribute("style", "display:block")
+        span.innerText = counter_stage + "-й Этап"
+        block.appendChild(span)
+
+        create_one_block_for_form(block, "Названиее", "title_stage", counter_stage);
+        create_one_block_for_form(block, "Текст", "content_stage", counter_stage);
+        create_one_block_for_form(block, "Длительность этапа", "time_stage", counter_stage);
+
+        container_for_stages.appendChild(block)
+        counter_stage++
+    });
+
+    add_spice.addEventListener("click", function(event){
+        let block = document.createElement("div")
+        let span = document.createElement("span")
+        span.setAttribute("style", "display:block")
+        span.innerText = counter_spice + "-я Специя"
+        block.appendChild(span)
+
+        create_choice_input_for_ingredient(block, "Специя", "spice", counter_spice)
+        create_one_block_for_form(block, "Сколько нужно", "count_use_spice", counter_spice);
+
+        container_for_spices.appendChild(block)
+        counter_spice++
+    });
+</script>
+</body>
+</html>
