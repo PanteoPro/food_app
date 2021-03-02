@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="header">
+        <h2><a href="/">Food App</a></h2>
+        <div class="auth">
+            {% if request.user.is_authenticated %}
+                <span>Пользователь: {{ request.user }}</span>
+                {% url 'logout' as url_logout %}
+                <span><a href="{{ url_logout }}">Выход</a></span>
+            {% else %}
+                {% url 'login' as url_login %}
+                <span><a href="{{ url_login }}">Авторизация</a></span>
+                {% url 'register' as url_register %}
+                <span><a href="{{ url_register }}">Регистрация</a></span>
+            {% endif %}
+        </div>
+    </div>
+    <hr>
+    <h3>{% block page_name %}{% endblock page_name %}</h3>
+    <hr>
+    {% if messages %}
+
+        {% for message in messages %}
+            <div>
+                <strong{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</strong>
+            </div>
+        {% endfor %}
+    <hr>
+    {% endif %}
+
+    {% block content %}
+
+    {% endblock content %}
+
+</body>
+</html>

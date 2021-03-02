@@ -34,7 +34,7 @@ from .service.views import set_model_in_context
 class MainView(View):
 
     def get(self, request, *args, **kwargs):
-        return render(request, 'main.html')
+        return render(request, 'food_main.html')
 
 
 class IngredientItemView(View):

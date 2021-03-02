@@ -11,3 +11,37 @@
     text-decoration: underline;
     font-size: 20px;
 }
+
+.header{
+    display: flex;
+    justify-content: space-between;
+    padding-right: 40px;
+}
+
+.auth {
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.auth>span {
+    color: blue;
+    cursor: pointer;
+    padding: 15px 15px;
+    margin: 0 30px;
+    border-radius: 20px;
+    transition: background 1s ease-out;
+
+}
+
+.auth>span:hover {
+    background: #ccf;
+}
+
+.auth>span:last-child:hover {
+    background: #fcc;
+}
+
+.auth>span:last-child{
+    color: red;
+}
