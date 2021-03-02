@@ -72,14 +72,18 @@ def _create_debt(ingredient_item: IngredientItem, count: int) -> None:
 def set_information_of_totals(instance: Union[Recipe, Cook]) -> None:
     """Добавляется в instance значения полей total_calories, total_weight, all_calories"""
     ingredients = None
+    choice = None
     if instance.__class__.__name__ == "Recipe":
         ingredients = instance.recipe_ingredients.all()
+        choice = "recipe"
     elif instance.__class__.__name__ == "Cook":
         ingredients = instance.cook_ingredients.all()
+        choice = "cook"
     information = _get_info_from_calories(ingredients, weight=True, all_calories=True)
     instance.total_calories = information['total_calories']
     instance.total_weight = information['total_weight']
-    instance.now_weight = information['total_weight']
+    if choice == "cook":
+        instance.now_weight = information['total_weight']
     instance.all_calories = information['all_calories']
     instance.save()
 
