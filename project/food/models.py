@@ -183,6 +183,7 @@ class Recipe(models.Model):
     time_type = models.PositiveSmallIntegerField("Когда употребляется блюдо", choices=settings.TIME_TYPE_TO_USE)
     cooking_time = models.PositiveSmallIntegerField("Длительность готовки")
     total_weight = models.PositiveSmallIntegerField("Вес приготовленного блюда", blank=True, default=0)
+    now_weight = models.PositiveSmallIntegerField("Сколько осталось блюда", blank=True, default=0)
     total_calories = models.PositiveSmallIntegerField("Калории на 100г продукта", blank=True, default=0)
     all_calories = models.PositiveSmallIntegerField("Общая каллорийность блюда", blank=True, default=0)
 

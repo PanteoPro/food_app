@@ -79,6 +79,7 @@ def set_information_of_totals(instance: Union[Recipe, Cook]) -> None:
     information = _get_info_from_calories(ingredients, weight=True, all_calories=True)
     instance.total_calories = information['total_calories']
     instance.total_weight = information['total_weight']
+    instance.now_weight = information['total_weight']
     instance.all_calories = information['all_calories']
     instance.save()
 
