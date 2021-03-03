@@ -12,6 +12,11 @@
         <div class="auth">
             {% if request.user.is_authenticated %}
                 <span>Пользователь: {{ request.user }}</span>
+                {% url 'profile' as url_profile %}
+                <span><a href="{{ url_profile }}">Профиль</a></span>
+                {% if request.user.is_superuser %}
+                <span><a href="{% url 'admin:index' %}">Админка</a></span>
+                {% endif %}
                 {% url 'logout' as url_logout %}
                 <span><a href="{{ url_logout }}">Выход</a></span>
             {% else %}

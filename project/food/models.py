@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.conf import settings
@@ -78,7 +80,7 @@ class CookStage(models.Model):
 
 class Ingredient(models.Model):
     """Ингредиент (категория, класс, общее название), так как может быть несколько упаковок"""
-    title = models.CharField("Название", max_length=256)
+    title = models.CharField("Название", max_length=256, unique=True)
     count_type = models.PositiveSmallIntegerField("В чем измеряется", choices=settings.TYPES_OF_COUNT_INGREDIENTS)
     calories = models.PositiveSmallIntegerField("Калории на 100г продукта")
 
@@ -182,13 +184,14 @@ class Recipe(models.Model):
     title = models.CharField("Название", max_length=256)
     time_type = models.PositiveSmallIntegerField("Когда употребляется блюдо", choices=settings.TIME_TYPE_TO_USE)
     cooking_time = models.PositiveSmallIntegerField("Длительность готовки")
+    days_to_overdue = models.PositiveSmallIntegerField("Сколько дней до просрочки")
+
     total_weight = models.PositiveSmallIntegerField("Вес приготовленного блюда", blank=True, default=0)
-    now_weight = models.PositiveSmallIntegerField("Сколько осталось блюда", blank=True, default=0)
     total_calories = models.PositiveSmallIntegerField("Калории на 100г продукта", blank=True, default=0)
     all_calories = models.PositiveSmallIntegerField("Общая каллорийность блюда", blank=True, default=0)
 
     def __str__(self):
-        return self.title
+        return str(self.title)
 
     @property
     def cooking_time_format(self):
@@ -211,7 +214,11 @@ class Cook(models.Model):
     )
     total_weight = models.PositiveSmallIntegerField("Вес приготовленного блюда", blank=True, default=0)
     total_calories = models.PositiveSmallIntegerField("Калории", blank=True, default=0)
+    now_weight = models.PositiveSmallIntegerField("Сколько осталось блюда", blank=True, default=0)
     all_calories = models.PositiveSmallIntegerField("Общая каллорийность блюда", blank=True, default=0)
+    is_ended = models.BooleanField("Закончилось?", default=False)
+    is_overdue = models.BooleanField("Просрочилось?", default=False)
+    date = models.DateTimeField("Когда приготовлено?", default=datetime.now)
 
     def __str__(self):
         return f"Блюдо {self.recipe.title}"

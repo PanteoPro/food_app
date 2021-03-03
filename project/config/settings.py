@@ -126,6 +126,9 @@ STATIC_URL = '/static/'
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = [STATIC_DIR]
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 
 # My settings
 
@@ -147,3 +150,5 @@ TIME_TYPE_TO_USE = (
     (3, 'ужин'),
     (4, 'перекус')
 )
+
+ANONYMOUS_AVATAR_URL = "/static/img/anonymous.jpg"

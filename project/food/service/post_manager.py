@@ -1,4 +1,4 @@
-from .other import _isint, _isfloat
+from .other import _isint, _isfloat, get_total_calories_for_ingredient
 from ..models import Recipe, PlaceSpice, CookStage, RecipeIngredient, CookIngredient, Cook, Ingredient
 
 
@@ -62,7 +62,7 @@ def _create_recipe_ingredient(recipe: Recipe, number: int, **kwargs) -> RecipeIn
 
     calories = Ingredient.objects.get(pk=ingredient_id).calories
 
-    total_calories = int(_get_total_calories_for_ingredient(calories, count_use))
+    total_calories = int(get_total_calories_for_ingredient(calories, count_use))
     return RecipeIngredient.objects.create(
         ingredient_id=ingredient_id,
         count_use=count_use,
@@ -81,14 +81,21 @@ def _create_cook_ingredient(cook: Cook, number: int, **kwargs) -> CookIngredient
     ingredient_item = ingredient.related_ingredient_items.first()
     calories = ingredient.calories
 
-    total_calories = _get_total_calories_for_ingredient(calories, count_use)
-
+    total_calories = get_total_calories_for_ingredient(calories, count_use)
     return CookIngredient.objects.create(
         ingredient_item=ingredient_item,
         count_use=count_use,
         total_calories=total_calories,
         cook=cook
     )
+
+
+def _set_in_data_like_post(recipe: Recipe, data: dict) -> list:
+    """Эта функция задает key value для работы метода create_cook"""
+    recipe_ingredients = RecipeIngredient.objects.filter(recipe=recipe)
+    for i, recipe_ingredient in enumerate(recipe_ingredients):
+        data["ingredient_" + str(i+1)] = recipe_ingredient.ingredient_id
+        data['ingredient_count_use_' + str(i+1)] = recipe_ingredient.count_use
 
 
 def renaming_kwargs_from_list(**kwargs):
@@ -105,9 +112,3 @@ def renaming_kwargs_from_list(**kwargs):
             wrapper = str
         kwargs[field_name] = wrapper(*value)
     return kwargs
-
-
-def _get_total_calories_for_ingredient(calories: int, count_use: int) -> int:
-    """Эта функция высчитывает количество каллорий в ингредиенте"""
-    if calories and count_use:
-        return int(calories * (count_use/100))

@@ -4,6 +4,7 @@ from .models import IngredientItem, Recipe, Cook
 
 
 class IngredientItemForm(ModelForm):
+    """Форма добавления ингредиента на склад"""
 
     class Meta:
         model = IngredientItem
@@ -14,13 +15,15 @@ class IngredientItemForm(ModelForm):
 
 
 class RecipeForm(ModelForm):
+    """Форма добавления рецепта"""
 
     class Meta:
         model = Recipe
-        fields = ('title', 'time_type', 'cooking_time',)
+        fields = ('title', 'time_type', 'cooking_time', 'days_to_overdue')
 
 
 class CookForm(ModelForm):
+    """Форма добавления блюда"""
 
     class Meta:
         model = Cook

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Страница употребления блюда{% endblock title %}
+{% block page_name %}Страница употребления блюда{% endblock page_name %}
+
+{% block content %}
+<form method="post" action="{% url 'eat_cook_add' %}">
+    {% csrf_token %}
+    <label for="id_cook">Блюдо</label>
+    {{ form.cook }}
+    <br>
+    <label for="id_count_eat">Сколько употребили</label>
+    {{ form.count_eat }}
+    <label for="id_count_eat"  id="show_count">Имеется в наличии</label><br>
+    {{ form.date }}<br>
+    <button id="get_all">Употребить все</button>
+    <button type="submit">Записать</button>
+</form>
+
+<script>
+    const cook_choice = document.getElementById("id_cook")
+    const count_eat = document.getElementById("id_count_eat")
+    const get_all = document.getElementById("get_all")
+    const show_count = document.getElementById("show_count")
+
+    let objects = {}
+
+    {% for cook in cooks %}
+        objects["cook_{{ cook.id }}"] = {{ cook.now_weight }}
+    {% endfor %}
+
+
+    get_all.addEventListener("click", function(event){
+        choice = cook_choice.value
+        count_eat.value = objects["cook_"+choice]
+    });
+
+    cook_choice.addEventListener("click", function(event){
+        choice = cook_choice.value
+        show_count.innerHTML = "Имеется в наличии: "
+        if (objects["cook_"+choice])
+            show_count.innerHTML += objects["cook_"+choice]
+
+    });
+
+
+
+</script>
+
+{% endblock content %}

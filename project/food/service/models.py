@@ -1,164 +1,55 @@
-from typing import Union
+from django.db.models import QuerySet
 
-from .essential import subtraction_from_store, set_information_of_totals, check_debt
-from .post_manager import create_objects_from_post, renaming_kwargs_from_list
-from ..models import Recipe, RecipeIngredient, Cook, IngredientItem, Debt, CookIngredient, Ingredient
+from ..models import Cook, IngredientItem, Debt
 
 
-def create_ingredient_item(form):
-    ingredient_item = form.save(commit=False)
-    result = check_debt(ingredient_item)
-    return result
+# ____________ Creates ------------ #
 
 
-def create_recipe(data):
-    """
-        Последовательность:
-        1) Создаем Recipe с title, time_type, cooking_time
-        2) Создаем Специи, Этапы, Ингридиенты
-            2.1) Высчитывать total_calories в RecipeIngredient
-        3) Добавляем их в Recipe
-            3.1) Высчитать total_calories, total_weight, all_calories в Recipe
-    """
-    messages = []
-    success = True
-    if not data.get("ingredient_1"):
-        messages.append("Нет ингредиентов")
-        success = False
-    if not data.get("title_stage_1"):
-        messages.append("Нет этапов")
-        success = False
-    if not success:
-        return {"success": success, 'messages': messages}
+# ___ Debt ___ #
 
-    # Разъименум данные, они с формы приходят в списках
-    data = renaming_kwargs_from_list(**data)
+def create_debt(ingredient_item: IngredientItem, count: int) -> Debt:
+    """Создание долга"""
+    return Debt.objects.create(ingredient=ingredient_item.ingredient, count=count)
 
-    # Создаем Recipe без relationships
-    recipe = Recipe.objects.create(
-        title=data["title"],
-        time_type=data["time_type"],
-        cooking_time=data["cooking_time"]
-    )
-
-    # Создаем PlaceSpices
-    place_spices = create_objects_from_post(
-        instance=recipe,
-        object_to_create_name="place_spice",
-        field="spice",
-        **data
-    )
-
-    # Создаем CookStages
-    cook_stages = create_objects_from_post(
-        instance=recipe,
-        object_to_create_name="cook_stage",
-        field="title_stage",
-        **data
-    )
-
-    # Создаем RecipeIngredients
-    recipe_ingredients = create_objects_from_post(
-        instance=recipe,
-        object_to_create_name="recipe_ingredient",
-        field="ingredient",
-        **data
-    )
-
-    # Добавляем Созданные инстансы в Recipe
-    recipe.spices.add(*place_spices)
-    recipe.cook_stages.add(*cook_stages)
-    recipe.recipe_ingredients.add(*recipe_ingredients)
-
-    # Высчитываем каллорийность блюда, вес блюда, и общую каллорийность
-    set_information_of_totals(recipe)
-    return {"success": True, "messages": [recipe.title]}
+# ____________ Gets ------------ #
 
 
-def create_cook(data):
-    """
-        1) Разъименовываем
-        2) Создаем 'пустой' Cook с указанием рецепта
-        3) Проверяем, установлен ли флаг is_change_count_ingredient
-            3.1) Если установлен, то ингредиентам даем значения пользвотеля
-            3.2) Если не установлен, то ингредиентам даем значения из рецепта
-        4) Создаем CookIngredients
-        ---) высчитываем total_calories для ингредиентов
-        5) Высчитываем для Cook total_calories, total_weight, all_calories
-        6) Сохраняем
-    """
+# ___ Cook ___ #
 
-    # Разъименовываем данные из списков
-    data = renaming_kwargs_from_list(**data)
-    recipe = Recipe.objects.get(pk=data['recipe'])
-
-    # Проверка флага is_change_count_ingredient
-    if not data.get("is_change_count_ingredient"):
-        # Замена в данных
-        _set_in_data_like_post(recipe, data)
-
-    # Проверка на наличие ингредиентов
-    result_checking = have_ingredients_in_store(**data)
-    if not result_checking['success']:
-        return result_checking
-
-    # Создаем пустой Cook
-    cook = Cook.objects.create(recipe=recipe)
-
-    # Создаем CookIngredients
-    cook_ingredients = create_objects_from_post(
-        instance=cook,
-        object_to_create_name="cook_ingredient",
-        field="ingredient",
-        **data
-    )
-
-    # Вычитаем из склада использованные ингредиенты
-    subtraction_from_store(*cook_ingredients)
-
-    # Добавляем в Cook инстансы ингредиентов
-    cook.cook_ingredients.add(*cook_ingredients)
-
-    # Высчитываем для Cook total_calories, total_weight, all_calories
-    set_information_of_totals(cook)
-
-    return {"success": True, "messages": [recipe.title]}
+def get_model_cook_by__id(id_cook) -> Cook:
+    """Возвращает инстанс модели Cook по id
+    Данные принимаются в любом из форматов python"""
+    if isinstance(id_cook, (list, tuple)):
+        id_cook = id_cook[0]
+    elif isinstance(id, dict):
+        id_cook = id_cook["id"]
+    return Cook.objects.get(pk=id_cook)
 
 
-def have_ingredients_in_store(**data) -> dict:
-    success = True
-    messages = list()
-    number = 1
-    while True:
-        if not data.get("ingredient_" + str(number)):
-            break
+def get_model_cook__already() -> QuerySet:
+    """Возвращает все блюда которые есть в наличии и не просроченны"""
+    return Cook.objects.filter(is_ended=False, is_overdue=False)
 
-        count_use = data['ingredient_count_use_' + str(number)]
-
-        ingredient_id = data['ingredient_' + str(number)]
-        ingredient_title = Ingredient.objects.get(pk=ingredient_id)
-        ingredient_items = IngredientItem.objects.filter(ingredient_id=ingredient_id,
-                                                         is_ended=False, is_overdue=False)
-
-        if len(ingredient_items) == 0:
-            messages.append("Нет в наличии ингредиента {}".format(ingredient_title))
-            success = False
-        else:
-            sum_count_have = 0
-            for ingredient_item in ingredient_items:
-                sum_count_have += ingredient_item.count_now
-            if sum_count_have < count_use:
-                messages.append(f"Нехватает ингредиента {ingredient_title}. "
-                                f"Нужно {count_use}, на складе есть {sum_count_have}")
-                success = False
-        number += 1
-
-    return {"success": success, "messages": messages}
+# ___ IngredientItem ___ #
 
 
-def _set_in_data_like_post(recipe: Recipe, data: dict) -> list:
-    """Эта функция задает key value для работы метода create_cook"""
-    recipe_ingredients = RecipeIngredient.objects.filter(recipe=recipe)
-    for i, recipe_ingredient in enumerate(recipe_ingredients):
-        data["ingredient_" + str(i+1)] = recipe_ingredient.ingredient_id
-        data['ingredient_count_use_' + str(i+1)] = recipe_ingredient.count_use
+def get_model_ingredient_item_by__id(id_ingredient_item) -> IngredientItem:
+    """Возвращает инстанс модели IngredientItem по id"""
+    if isinstance(id_ingredient_item, (list, tuple)):
+        id_cook = id_ingredient_item[0]
+    elif isinstance(id, dict):
+        id_cook = id_ingredient_item["id"]
+    return IngredientItem.objects.get(pk=id_ingredient_item)
+
+
+def get_model_ingredient_item_by__ingredient_id__already(ingredient_item: IngredientItem) -> QuerySet:
+    """Возвращает QuerySet объектов IngredientItem по ingredient
+    которые еще не закончились и не просрочились"""
+    return IngredientItem.objects.filter(ingredient=ingredient_item.ingredient, is_ended=False, is_overdue=False)
+
+
+def get_model_ingredient_item__already() -> QuerySet:
+    """Возвращает всее ингредиенты которые есть в наличии и не просроченны"""
+    return IngredientItem.objects.filter(is_ended=False, is_overdue=False)
+

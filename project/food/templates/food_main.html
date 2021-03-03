@@ -4,6 +4,12 @@
 
 
 {% block content %}
+    {% if request.user.is_authenticated %}
+    <a href="{% url 'eat_cook' %}">Употребить блюдо</a>
+    <br>
+    <a href="{% url 'eat_ingredient_item' %}">Употребить продукт</a>
+    <br>
+    <hr>
     <a href="{% url 'ingredient_item' %}">Постановка ингредиента на учет</a>
     <br>
     <a href="{% url 'recipe' %}">Создание рецепта</a>
@@ -11,6 +17,7 @@
     <a href="{% url 'cook' %}">Добавление приготовленного блюда</a>
     <hr>
     <br>
+    {% endif %}
     <a href="{% url 'recipe_list' %}">Просмотр всех рецептов</a>
     <br>
     <a href="{% url 'cook_list' %}">Просмотр всех приготовленных блюд</a>

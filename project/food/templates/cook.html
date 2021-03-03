@@ -11,14 +11,6 @@
     <button type="submit">Отправить</button>
 </form>
 
-{% for recipe_ingredient in recipe_ingredients %}
-    <div>
-        {{ recipe_ingredient.ingredient }}
-        {{ recipe_ingredient.ingredient.calories }}
-        {{ recipe_ingredient.count_use }}
-        {{ recipe_ingredient.recipe }}
-    </div>
-{% endfor %}
 <script>
 
     function create_block(){
@@ -97,7 +89,7 @@
         ingredients = objects[recipe_id]
         counter = 1
         for (key in ingredients){
-            ingredient_id = parseInt(key.slice(-1))
+            ingredient_id = parseInt(key.split("_")[2])
             ingredient_count_use = ingredients[key][0]
             ingredient_title = ingredients[key][1]
             create_choice_input_for_ingredient(block, "Ингредиент", "ingredient", counter, ingredient_id, ingredient_title)

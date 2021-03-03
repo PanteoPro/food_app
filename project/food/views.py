@@ -5,8 +5,9 @@ from django.views.generic import ListView
 
 from .forms import IngredientItemForm, RecipeForm, CookForm
 from .models import Recipe, Ingredient, Spice, Cook
-from .service.models import create_recipe, create_cook, create_ingredient_item
-from .service.views import set_model_in_context
+
+from .service.views import create_ingredient_item, create_recipe, create_cook
+from config.service.views import set_model_all_in_context
 
 """
     Что должно быть:
@@ -24,20 +25,15 @@ from .service.views import set_model_in_context
 """
 
 
-# class Test2(View):
-#
-#     def get(self, request, *args, **kwargs):
-#         check_all_ingredient_items_for_overdue()
-#         return HttpResponse("Hello2")
-
-
 class MainView(View):
+    """Отображение главной страницы приложения"""
 
     def get(self, request, *args, **kwargs):
         return render(request, 'food_main.html')
 
 
 class IngredientItemView(View):
+    """Отображение страницы с добавление ингредиента на склад"""
 
     def get(self, request, *args, **kwargs):
         form = IngredientItemForm()
@@ -47,6 +43,7 @@ class IngredientItemView(View):
 
 
 class IngredientItemAddView(View):
+    """Добавление ингредиента на склад"""
 
     def post(self, request, *args, **kwargs):
 
@@ -59,22 +56,25 @@ class IngredientItemAddView(View):
 
 
 class RecipeListView(ListView):
+    """Вывод всех рецептов"""
 
     model = Recipe
 
 
 class RecipeView(View):
+    """Отображение страницы добавления рецепта"""
 
     def get(self, request, *args, **kwargs):
         form = RecipeForm()
         context = dict()
         context['form'] = form
-        set_model_in_context(Ingredient, context, "id", "title")
-        set_model_in_context(Spice, context, "id", "title")
+        set_model_all_in_context(Ingredient, context, "id", "title")
+        set_model_all_in_context(Spice, context, "id", "title")
         return render(request, "recipe.html", context=context)
 
 
 class RecipeAddView(View):
+    """Добавление рецепта"""
 
     def post(self, request, *args, **kwargs):
         result = create_recipe(request.POST)
@@ -88,21 +88,24 @@ class RecipeAddView(View):
 
 
 class CookListView(ListView):
+    """Вывод всех блюд"""
 
     model = Cook
 
 
 class CookView(View):
+    """Отображение страницы добавления блюда"""
 
     def get(self, request, *args, **kwargs):
         form = CookForm()
         context = dict()
         context['form'] = form
-        set_model_in_context(Recipe, context)
+        set_model_all_in_context(Recipe, context)
         return render(request, "cook.html", context=context)
 
 
 class CookAddView(View):
+    """Добавление блюда"""
 
     def post(self, request, *args, **kwargs):
         result = create_cook(request.POST)

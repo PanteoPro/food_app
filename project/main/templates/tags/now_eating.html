@@ -1,0 +1,28 @@
+
+<div class="eats">
+    <div>
+        <h3>Употребленные блюда</h3>
+    {% for eat_cook in eat_cooks %}
+        <div>
+            <h3>{{ eat_cook.cook.recipe.title }}</h3>
+            <span>Сколько грамм употребил: {{ eat_cook.count_eat }}</span><br>
+            <span>Сколько калорий употребил: {{ eat_cook.calories_eat }}</span><br>
+            <span>Во сколько: {{ eat_cook.date.hour }}:{{ eat_cook.date.minute }}</span><br>
+            <hr>
+        </div>
+    {% endfor %}
+    </div>
+
+    <div>
+        <h3>Употребленные ингредиенты</h3>
+    {% for eat_ingredient in eat_ingredient_items %}
+        <div>
+            <h3>{{ eat_ingredient.ingredient_item.ingredient.title }}</h3>
+            <span>Сколько грамм употребил: {{ eat_ingredient.count_eat }}</span><br>
+            <span>Сколько калорий употребил: {{ eat_ingredient.calories_eat }}</span><br>
+            <span>Во сколько: {{ eat_ingredient.date.hour }}:{{ eat_ingredient.date.minute }}</span><br>
+            <hr>
+        </div>
+    {% endfor %}
+    </div>
+</div>

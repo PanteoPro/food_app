@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Страница употребления ингредиента{% endblock title %}
+{% block page_name %}Страница употребления ингредиента{% endblock page_name %}
+
+{% block content %}
+<form method="post" action="{% url 'eat_ingredient_item_add' %}">
+    {% csrf_token %}
+    <label for="id_cook">Продукт</label>
+    {{ form.ingredient_item }}
+    <br>
+    <label for="id_count_eat">Сколько употребили</label>
+    {{ form.count_eat }}
+    <label for="id_count_eat" id="show_count">Имеется в наличии</label><br>
+    {{ form.date }}<br>
+    <button id="get_all">Употребить все</button>
+    <button type="submit">Записать</button>
+</form>
+
+
+{% for cook in cooks %}
+    {{ cook.now_weight }}
+{% endfor %}
+
+
+<script>
+    const ingredient_item = document.getElementById("id_ingredient_item")
+    const count_eat = document.getElementById("id_count_eat")
+    const get_all = document.getElementById("get_all")
+    const show_count = document.getElementById("show_count")
+
+    let objects = {}
+
+    {% for ingredient_item in ingredient_items %}
+        objects["ingredient_item_{{ ingredient_item.id }}"] = {{ ingredient_item.count_now }}
+    {% endfor %}
+
+
+    get_all.addEventListener("click", function(event){
+        choice = ingredient_item.value
+        count_eat.value = objects["ingredient_item_"+choice]
+    });
+
+    ingredient_item.addEventListener("click", function(event){
+        choice = ingredient_item.value
+        show_count.innerHTML = "Имеется в наличии: "
+        if (objects["ingredient_item_"+choice])
+            show_count.innerHTML += objects["ingredient_item_"+choice]
+
+    });
+
+
+</script>
+
+{% endblock content %}

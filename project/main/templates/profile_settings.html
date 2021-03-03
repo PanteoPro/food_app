@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Профиль{% endblock title %}
+{% block page_name %}
+Профиль
+<div class="auth"><span>Настройки</span></div>
+{% endblock page_name %}
+
+{% block content %}
+
+<form action="{% url 'profile_settings_apply' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="profile">
+        <div class="profile_image-block">
+            <img src="{{ user.profile.get_avatar }}" alt="Аватарка">
+            <label for="id_avatar">Изменить аватар</label>
+            <input type="file" name="avatar" id="id_avatar">
+        </div>
+        <div class="profile_info">
+            <label for="id_username">Изменить ник</label>
+            <input type="text" name="username" id="id_username" value="{{ user.username }}">
+            <label for="id_calories_limit">Изменить лимит калорий</label>
+            <input type="text" name="calories_limit" id="id_calories_limit" value="{{ user.profile.calories_limit }}">
+        </div>
+        <button type="submit">Сохранить</button>
+    </div>
+</form>
+{% endblock content %}

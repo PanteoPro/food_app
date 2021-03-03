@@ -26,6 +26,8 @@ class ChangeTotalCaloriesForm(ModelForm):
             fields_to_change.append(self.fields['total_weight'])
         if self.fields.get('all_calories', None):
             fields_to_change.append(self.fields['all_calories'])
+        if self.fields.get('now_weight', None):
+            fields_to_change.append(self.fields['now_weight'])
 
         for field in fields_to_change:
             field.widget.attrs.update({

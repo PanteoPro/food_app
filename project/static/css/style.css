@@ -45,3 +45,32 @@
 .auth>span:last-child{
     color: red;
 }
+
+.profile{
+    display: flex;
+}
+
+.profile_image-block{
+    width: 700px;
+    height: 450px;
+    border: 1px solid black;
+    margin-right: 20px;
+}
+
+.profile_image-block>img{
+    width: inherit;
+    height: inherit;
+}
+
+.profile_info {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile_info>span{
+    font-size: 20px;
+}
+
+.eats {
+    display: flex;
+}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load eat_items %}
+
+{% block title %}Профиль{% endblock title %}
+{% block page_name %}
+Профиль
+<div class="auth"><span><a href="{% url 'profile_settings' %}">Настройки</a></span></div>
+{% endblock page_name %}
+
+{% block content %}
+
+<div class="profile">
+    <div class="profile_image-block">
+        <img src="{{ profile.get_avatar }}" alt="Аватарка">
+    </div>
+    <div class="profile_info">
+        <span>Ник: {{ profile.user.username }}</span>
+        <span>Каллории {{ profile.calories_now }}/{{ profile.calories_limit }}</span>
+    </div>
+</div>
+
+
+{% get_eats user=request.user %}
+
+{% endblock content %}
