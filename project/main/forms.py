@@ -62,8 +62,15 @@ class EatCookForm(forms.ModelForm):
         model = EatCook
         fields = ("cook", "count_eat", "date")
         widgets = {
-            "date": forms.DateTimeInput(attrs={"type": "datetime-local"})
+            "date": forms.DateTimeInput(attrs={"type": "datetime-local", "help_text": "Hello"})
         }
+        help_texts = {
+            "date": "Поумолчанию текущее время"
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date'].required = False
 
 
 class EatIngredientForm(forms.ModelForm):
@@ -77,5 +84,12 @@ class EatIngredientForm(forms.ModelForm):
         model = EatIngredient
         fields = ("ingredient_item", "count_eat", 'date')
         widgets = {
-            "date": forms.DateTimeInput(attrs={"type": "datetime-local"})
+            "date": forms.DateTimeInput(attrs={"type": "datetime-local", "required": False}, )
         }
+        help_texts = {
+            "date": "Поумолчанию текущее время"
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date'].required = False

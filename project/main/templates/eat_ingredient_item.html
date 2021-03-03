@@ -11,7 +11,8 @@
     <label for="id_count_eat">Сколько употребили</label>
     {{ form.count_eat }}
     <label for="id_count_eat" id="show_count">Имеется в наличии</label><br>
-    {{ form.date }}<br>
+    {{ form.date }}
+    {{ form.date.help_text }}<br>
     <button id="get_all">Употребить все</button>
     <button type="submit">Записать</button>
 </form>
